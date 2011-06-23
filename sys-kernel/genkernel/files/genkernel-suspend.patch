@@ -1,0 +1,152 @@
+diff -bruN genkernel-3.4.10.906.orig/defaults/initrd.scripts genkernel-3.4.10.906/defaults/initrd.scripts
+--- genkernel-3.4.10.906.orig/defaults/initrd.scripts	2009-07-20 00:10:44.000000000 +0200
++++ genkernel-3.4.10.906/defaults/initrd.scripts	2010-09-18 01:59:28.042239621 +0200
+@@ -856,6 +856,20 @@
+ 	fi
+ }
+ 
++suspend_resume() {
++	[ -x /sbin/resume ] || return
++
++	local device="${REAL_RESUME}" swap_offset="${SWAP_OFFSET}"
++	local resume_args="--config /etc/suspend.conf"
++
++	[ -n "${REAL_RESUME}" ] &&
++		resume_args="${resume_args} --resume_device=${device}"
++	[ -n "${SWAP_OFFSET}" ] &&
++		resume_args="${resume_args} --swap_offset=${swap_offset}"
++	[ -z "${device}" ] && /sbin/resume ||
++		/sbin/resume ${resume_args}
++	return 0
++}
+ swsusp_resume() {
+ 	# determine swap resume partition
+ 	local device=$(ls -lL "${REAL_RESUME}" | sed 's/\  */ /g' | cut -d \  -f 5-6 | sed 's/,\ */:/')
+diff -bruN genkernel-3.4.10.906.orig/defaults/linuxrc genkernel-3.4.10.906/defaults/linuxrc
+--- genkernel-3.4.10.906.orig/defaults/linuxrc	2009-02-04 14:30:48.000000000 +0100
++++ genkernel-3.4.10.906/defaults/linuxrc	2010-09-18 01:59:28.042239621 +0200
+@@ -170,6 +170,10 @@
+ 		real_resume\=*)
+ 			REAL_RESUME=`parse_opt "${x}"`
+ 		;;
++		# Support for suspend
++		swap_offset\=*)
++			SWAP_OFFSET=`parse_opt "${x}"`
++		;;
+ 		noresume)
+ 			NORESUME=1
+ 		;;
+@@ -300,7 +304,8 @@
+ 		esac
+ 
+ 		swsusp_resume
+-#		suspend_resume
++		# 2010/09/17 Robert Wappler: Reactivated for suspend support
++		suspend_resume
+ 		tuxonice_resume
+ 	fi
+ fi
+diff -bruN genkernel-3.4.10.906.orig/gen_cmdline.sh genkernel-3.4.10.906/gen_cmdline.sh
+--- genkernel-3.4.10.906.orig/gen_cmdline.sh	2009-08-05 15:19:47.000000000 +0200
++++ genkernel-3.4.10.906/gen_cmdline.sh	2010-09-18 01:55:46.172240362 +0200
+@@ -536,6 +536,12 @@
+ 		--config=*)
+ 			print_info 2 "CMD_GK_CONFIG: `parse_opt "$*"`"
+ 			;;
++		--suspend)
++			# 2010/09/17 Robert Wappler: Extending the partially implemented support for
++			# 	suspend to disk using sys-power/suspend
++			CMD_SUSPEND=1
++			print_info 2 "CMD_SUSPEND=${CMD_SUSPEND}"
++			;;
+ 		all)
+ 			BUILD_KERNEL=1
+ 			BUILD_MODULES=1
+diff -bruN genkernel-3.4.10.906.orig/gen_determineargs.sh genkernel-3.4.10.906/gen_determineargs.sh
+--- genkernel-3.4.10.906.orig/gen_determineargs.sh	2009-08-05 15:19:47.000000000 +0200
++++ genkernel-3.4.10.906/gen_determineargs.sh	2010-09-18 01:55:46.172240362 +0200
+@@ -141,6 +141,9 @@
+ 	BLKID_BINCACHE=`arch_replace "${BLKID_BINCACHE}"`
+ 	FUSE_BINCACHE=`arch_replace "${FUSE_BINCACHE}"`
+ 	UNIONFS_FUSE_BINCACHE=`arch_replace "${UNIONFS_FUSE_BINCACHE}"`
++	# 2010/09/17 Robert Wappler: suspend support
++	SUSPEND_BINCACHE=`cache_replace "${SUSPEND_BIN_CACHE}"`
++	SUSPEND_BINCACHE=`arch_replace "${SUSPEND_BIN_CACHE}"`
+ 
+ 	if [ -n "${CMD_BOOTLOADER}" ]
+ 	then
+diff -bruN genkernel-3.4.10.906.orig/gen_initramfs.sh genkernel-3.4.10.906/gen_initramfs.sh
+--- genkernel-3.4.10.906.orig/gen_initramfs.sh	2009-08-05 15:19:47.000000000 +0200
++++ genkernel-3.4.10.906/gen_initramfs.sh	2010-09-18 01:55:46.172240362 +0200
+@@ -108,23 +108,23 @@
+ 	rm -rf "${TEMP}/initramfs-unionfs-fuse-temp" > /dev/null
+ }
+ 
+-#append_suspend(){
+-#	if [ -d "${TEMP}/initramfs-suspend-temp" ];
+-#	then
+-#		rm -r "${TEMP}/initramfs-suspend-temp/"
+-#	fi
+-#	print_info 1 'SUSPEND: Adding support (compiling binaries)...'
+-#	compile_suspend
+-#	mkdir -p "${TEMP}/initramfs-suspend-temp/"
+-#	/bin/tar -jxpf "${SUSPEND_BINCACHE}" -C "${TEMP}/initramfs-suspend-temp" ||
+-#		gen_die "Could not extract suspend binary cache!"
+-#	mkdir -p "${TEMP}/initramfs-suspend-temp/etc"
+-#	cp -f /etc/suspend.conf "${TEMP}/initramfs-suspend-temp/etc" ||
+-#		gen_die 'Could not copy /etc/suspend.conf'
+-#	cd "${TEMP}/initramfs-suspend-temp/"
+-#	find . -print | cpio ${CPIO_ARGS} --append -F "${CPIO}"
+-#	rm -r "${TEMP}/initramfs-suspend-temp/"
+-#}
++append_suspend(){
++	if [ -d "${TEMP}/initramfs-suspend-temp" ];
++	then
++		rm -r "${TEMP}/initramfs-suspend-temp/"
++	fi
++	print_info 1 '	    SUSPEND: Adding support (using local static binaries) ...'
++	mkdir -p "${TEMP}/initramfs-suspend-temp/"
++	mkdir -p "${TEMP}/initramfs-suspend-temp/etc"
++	cp -f /etc/suspend.conf "${TEMP}/initramfs-suspend-temp/etc" ||
++		gen_die 'Could not copy /etc/suspend.conf'
++	cd "${TEMP}/initramfs-suspend-temp/"
++	mkdir -p "sbin"
++	cp "${SUSPEND_RESUME}" sbin ||
++		gen_die "Could not copy resume-binary from ${SUSPEND_RESUME}!"
++	find . -print | cpio ${CPIO_ARGS} --append -F "${CPIO}"
++	rm -rf "${TEMP}/initramfs-suspend-temp/"
++}
+ 
+ append_multipath(){
+ 	if [ -d "${TEMP}/initramfs-multipath-temp" ]
+@@ -588,6 +588,7 @@
+ 	append_data 'mdadm' "${MDADM}"
+ 	append_data 'luks' "${LUKS}"
+ 	append_data 'multipath' "${MULTIPATH}"
++	append_data 'suspend' "${SUSPEND}"
+ 
+ 	if [ "${NORAMDISKMODULES}" -eq '0' ]
+ 	then
+diff -bruN genkernel-3.4.10.906.orig/genkernel.conf genkernel-3.4.10.906/genkernel.conf
+--- genkernel-3.4.10.906.orig/genkernel.conf	2009-08-05 15:19:47.000000000 +0200
++++ genkernel-3.4.10.906/genkernel.conf	2010-09-18 01:57:44.077239710 +0200
+@@ -64,6 +64,19 @@
+ # If included, busybox is rebuilt if the cached copy is out of date.
+ # BUSYBOX="yes"
+ 
++# Add support for suspend/resume from disk.
++# Kernel Options:
++# 	real_resume=<resume device>
++# 		The device to read the resume image from.
++# 	swap_offset=<offset in pages>
++# 		The number of pages to skip, if the resume
++# 		device is a swap device.
++# Genkernel:
++# The SUSPEND_RESUME option gives the path to copy the system's
++# resume binary from (e.g. /usr/lib/suspend/resume)
++# SUSPEND="yes"
++# SUSPEND_RESUME="/usr/lib/suspend/resume"
++
+ # Copy /etc/mdadm.conf to initramfs.
+ # MDADM="no"
+ 
