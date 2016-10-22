@@ -37,20 +37,21 @@ RDEPEND="!sys-kernel/linux-firmware[-savedconfig]"
 S="${WORKDIR}/${MY_PN}-${MY_PV}"
 S_LFP="${WORKDIR}/${MY_LFP}"
 
-CONFIG_CHECK="~IWLMVM"
-ERROR_IWLMVM="CONFIG_IWLMVM is required to be enabled in /usr/src/linux/.config for the kernel to be able to load the ${DEV_N} firmware"
-
-if use bluetooth; then
-	CONFIG_CHECK="~BT_INTEL"
-	ERROR_BT_INTEL="CONFIG_BT_INTEL is required to enabled in /usr/src/linux/.config for the kernel to be able to load the firmware for the bluetooth module of the ${DEV_N} firmware"
-fi
-
 pkg_pretend() {
 	if kernel_is lt "${DV_MAJOR}" "${DV_MINOR}" "${DV_PATCH}"; then
 		ewarn "Your kernel version is ${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}."
 		ewarn "This microcode image requires a kernel >= ${DV_MAJOR}.${DV_MINOR}.${DV_PATCH}."
 		ewarn "For kernel versions < ${DV_MAJOR}.${DV_MINOR}.${DV_PATCH}, you may install older SLOTS"
 	fi
+
+	CONFIG_CHECK="~IWLMVM"
+	ERROR_IWLMVM="CONFIG_IWLMVM is required to be enabled in /usr/src/linux/.config for the kernel to be able to load the ${DEV_N} firmware"
+
+	if use bluetooth; then
+		CONFIG_CHECK="~BT_INTEL"
+		ERROR_BT_INTEL="CONFIG_BT_INTEL is required to enabled in /usr/src/linux/.config for the kernel to be able to load the firmware for the bluetooth module of the ${DEV_N} firmware"
+	fi
+
 }
 
 src_unpack() {
