@@ -33,9 +33,9 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="binary"
 
-DEPEND=">=virtual/jdk-1.7
+DEPEND=">=virtual/jdk-1.8
 	=dev-lang/scala-2.11*:${SV}"
-RDEPEND=">=virtual/jre-1.7
+RDEPEND=">=virtual/jre-1.8
 	dev-lang/scala:*"
 
 # test hangs or fails
