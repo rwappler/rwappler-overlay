@@ -44,14 +44,18 @@ pkg_pretend() {
 		ewarn "For kernel versions < ${DV_MAJOR}.${DV_MINOR}.${DV_PATCH}, you may install older SLOTS"
 	fi
 
-	CONFIG_CHECK="~IWLMVM"
+}
+
+pkg_setup() {
+	CONFIG_CHECK="${CONFIG_CHECK} ~IWLMVM"
 	ERROR_IWLMVM="CONFIG_IWLMVM is required to be enabled in /usr/src/linux/.config for the kernel to be able to load the ${DEV_N} firmware"
 
 	if use bluetooth; then
-		CONFIG_CHECK="~BT_INTEL"
-		ERROR_BT_INTEL="CONFIG_BT_INTEL is required to enabled in /usr/src/linux/.config for the kernel to be able to load the firmware for the bluetooth module of the ${DEV_N} firmware"
+		CONFIG_CHECK="${CONFIG_CHECK} ~BT_INTEL"
+		ERROR_BT_INTEL="CONFIG_BT_INTEL is required to be enabled in /usr/src/linux/.config for the kernel to be able to load the firmware for the bluetooth module of the ${DEV_N} firmware"
 	fi
 
+	linux-info_pkg_setup
 }
 
 src_unpack() {
