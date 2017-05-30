@@ -20,23 +20,40 @@ SLOT="5"
 KEYWORDS="amd64 ~ppc x86"
 IUSE="+bookmarks debug"
 
-#KDE_APPS_MINIMAL="15.08.03"
-RDEPEND="
-	$(add_kdeapps_dep plasma-runtime '' ${KDE_APPS_MINIMAL} 4)
-	$(add_plasma_dep plasma-workspace '' ${PLASMA_MINIMAL})
-	$(add_qt_dep qtdbus)
-	$(add_qt_dep qtxml)
-	$(add_qt_dep qtcore)
-	$(add_qt_dep qtgui)
-	$(add_qt_dep qtwidgets)
-	$(add_qt_dep qtprintsupport)
-	sys-libs/zlib
-	bookmarks? ( $(add_kdeapps_dep keditbookmarks '' ${KDE_APPS_MINIMAL} 4) )
+DEPEND="
+    $(add_frameworks_dep karchive)
+    $(add_frameworks_dep kbookmarks)
+    $(add_frameworks_dep kcodecs)
+    $(add_frameworks_dep kcompletion)
+    $(add_frameworks_dep kconfig)
+    $(add_frameworks_dep kconfigwidgets)
+    $(add_frameworks_dep kcoreaddons)
+    $(add_frameworks_dep kguiaddons)
+    $(add_frameworks_dep ki18n)
+    $(add_frameworks_dep kiconthemes)
+    $(add_frameworks_dep kio)
+    $(add_frameworks_dep kitemviews)
+    $(add_frameworks_dep kjobwidgets)
+    $(add_frameworks_dep knotifications)
+    $(add_frameworks_dep kparts)
+    $(add_frameworks_dep kservice)
+    $(add_frameworks_dep ktextwidgets)
+    $(add_frameworks_dep kwallet)
+    $(add_frameworks_dep kwidgetsaddons)
+    $(add_frameworks_dep kwindowsystem)
+    $(add_frameworks_dep kxmlgui)
+    $(add_frameworks_dep solid)
+    $(add_qt_dep qtdbus)
+    $(add_qt_dep qtgui)
+    $(add_qt_dep qtprintsupport)
+    $(add_qt_dep qtwidgets)
+    $(add_qt_dep qtxml)
+    sys-apps/acl
+    sys-libs/zlib
 "
-DEPEND="${RDEPEND}
+
+RDEPEND="${DEPEND}
 	sys-devel/gettext
+	bookmarks? ( $(add_kdeapps_dep keditbookmarks) )
+	!kde-misc/krusader:4
 "
-
-# PATCHES=( "${FILESDIR}/${P}-new-folder.patch" )
-
-# S="${WORKDIR}/${MY_P}"
