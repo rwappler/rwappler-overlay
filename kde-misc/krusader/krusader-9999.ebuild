@@ -13,7 +13,7 @@ inherit git-r3 kde5
 
 DESCRIPTION="An advanced twin-panel (commander-style) file-manager for KDE with many extras"
 HOMEPAGE="https://quickgit.kde.org/?p=krusader.git"
-EGIT_REPO_URI="git://anongit.kde.org/krusader.git"
+EGIT_REPO_URI="https://github.com/KDE/krusader.git"
 LICENSE="GPL-2"
 
 SLOT="5"
