@@ -21,7 +21,7 @@ CDEPEND="
 	dev-java/commons-codec:0
 	dev-java/commons-lang:3.1
 	dev-java/commons-net:0
-	dev-java/guava:20.0
+	dev-java/guava:20
 	dev-java/jakarta-oro:2.0
 	dev-java/htmlparser-org:0
 	dev-java/jgoodies-common:1.8
