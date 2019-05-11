@@ -1,5 +1,5 @@
 --- tvbrowser-4.0.1/build.xml	2018-03-06 15:59:50.000000000 +0100
-+++ tvbrowser-4.0.1.patched/build.xml	2019-05-11 20:47:05.057165842 +0200
++++ tvbrowser-4.0.1.patched/build.xml	2019-05-11 21:00:53.030120044 +0200
 @@ -107,29 +107,39 @@
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
  
@@ -41,7 +41,12 @@
  
    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  |
-@@ -329,20 +339,37 @@
+@@ -325,24 +335,41 @@
+   </target>
+ 	
+   <!-- Creates the platform independent runtime folder -->
+-  <target name="runtime" depends="clean-default, make-default, mkdirs, download-newsplugin">
++  <target name="runtime" depends="clean-default, make-default, mkdirs">
      <echo message="Creating the jars ..."/>
  
      <!-- Extract the libraries for the tvbrowser.jar into the temp.dir -->
