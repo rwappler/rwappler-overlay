@@ -6,7 +6,7 @@ EAPI=5
 inherit linux-info linux-mod
 
 if [ "${PV}" = "9999" ]; then
-	inherit git-2
+	inherit git-r3
 	EGIT_REPO_URI="https://github.com/teleshoes/acpi_call.git"
 	KEYWORDS=""
 else
