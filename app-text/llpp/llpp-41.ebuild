@@ -27,10 +27,10 @@ RDEPEND="=app-text/mupdf-1.21*:0=
 	x11-misc/xsel
 "
 DEPEND="${RDEPEND}
-	dev-ml/lablgl:=[glut,ocamlopt+]"
+	dev-ml/lablgl:=[glut,ocamlopt]"
 BDEPEND="
 	app-text/asciidoc
-	>=dev-lang/ocaml-4.14[ocamlopt+]
+	>=dev-lang/ocaml-4.14[ocamlopt]
 	virtual/pkgconfig
 "
 
