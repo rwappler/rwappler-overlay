@@ -13,7 +13,7 @@ LICENSE="public-domain"
 SLOT="0"
 KEYWORDS="~amd64 ~ppc ~x86"
 
-RDEPEND=">=app-text/mupdf-1.21.1:0=
+RDEPEND=">=app-text/mupdf-1.21*:0=
 	app-arch/bzip2
 	media-libs/fontconfig:1.0
 	media-libs/freetype:2
