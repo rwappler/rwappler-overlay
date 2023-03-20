@@ -96,7 +96,6 @@ install:
 	install -Dm644 -t "$(DESTDIR)"$(PREFIX)/share/man/man1  $(MANS)
 	install -Dm755 misc/llppac "$(DESTDIR)"$(PREFIX)/bin/llppac
 	install -Dm755 misc/llpp.inotify "$(DESTDIR)"$(PREFIX)/bin/llpp.inotify
-	install -Dm755 misc/llpphtml "$(DESTDIR)"$(PREFIX)/bin/llpphtml
 	install -Dm644 misc/llpp.desktop "$(DESTDIR)"$(PREFIX)/share/applications/llpp.desktop
 
 .PHONY: all clean dist install
